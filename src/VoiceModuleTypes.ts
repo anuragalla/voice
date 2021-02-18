@@ -37,6 +37,7 @@ export type SpeechRecognizedEvent = {
 
 export type SpeechResultsEvent = {
   value?: string[];
+  confidence?: string[];
 };
 
 export type SpeechErrorEvent = {

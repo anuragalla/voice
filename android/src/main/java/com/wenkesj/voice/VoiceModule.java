@@ -123,6 +123,8 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     }
 
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
+    intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
+
     speech.startListening(intent);
   }
 
@@ -319,14 +321,23 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
   @Override
   public void onPartialResults(Bundle results) {
     WritableArray arr = Arguments.createArray();
+    WritableArray confidenceArr = Arguments.createArray();
 
     ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+    float [] scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES);
+
     for (String result : matches) {
       arr.pushString(result);
     }
-
+     if (scores != null){
+       for (float result : scores) {
+         confidenceArr.pushDouble(result);
+       }
+     }
     WritableMap event = Arguments.createMap();
     event.putArray("value", arr);
+    event.putArray("confidence", confidenceArr);
+
     sendEvent("onSpeechPartialResults", event);
     Log.d("ASR", "onPartialResults()");
   }
@@ -342,14 +353,25 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
   @Override
   public void onResults(Bundle results) {
     WritableArray arr = Arguments.createArray();
+    WritableArray confidenceArr = Arguments.createArray();
 
     ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+    float [] scores =  results.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES);
+
+
     for (String result : matches) {
       arr.pushString(result);
     }
+     if (scores != null){
+       for (float result : scores) {
+         confidenceArr.pushDouble(result);
+       }
+     }
 
     WritableMap event = Arguments.createMap();
     event.putArray("value", arr);
+    event.putArray("confidence", confidenceArr);
+
     sendEvent("onSpeechResults", event);
     Log.d("ASR", "onResults()");
   }

@@ -289,10 +289,12 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
   @Override
   public void onBufferReceived(byte[] buffer) {
+    Log.d("ASR", "bufferReceived buffer size :" + String.valueOf(buffer.length));
     WritableMap event = Arguments.createMap();
-    event.putBoolean("error", false);
+    event.putString("base64String", new String(buffer));
+    Log.d("ASR", "bufferReceived base64String  :" + new String(buffer));
     sendEvent("onSpeechRecognized", event);
-    Log.d("ASR", "onBufferReceived()");
+    Log.d("ASR", "onReadyForSpeech()");
   }
 
   @Override

@@ -40,6 +40,10 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
   private SpeechRecognizer speech = null;
   private boolean isRecognizing = false;
   private String locale = null;
+  private String AudiofileName = "";
+  private MediaRecorder myAudioRecorder = null;
+  private File myAudioFile = null;
+
 
   public VoiceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -123,9 +127,50 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     }
     intent.putExtra("android.speech.extra.GET_AUDIO_FORMAT", "audio/AMR");
     intent.putExtra("android.speech.extra.GET_AUDIO", true);
-    intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 1000);
+    intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 2000);
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
     intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
+
+    try {
+      int paramInt = new Random().nextInt(100);
+
+      String paramString1 = this.reactContext.getFilesDir().getAbsolutePath();
+
+      StringBuilder paramString2 = new StringBuilder();
+
+      paramString2.append(paramInt);
+
+      paramString2.append(".mp3");
+
+      File file = new File(paramString1, paramString2.toString());
+
+      this.myAudioFile = file
+
+      this.AudiofileName = file.getAbsolutePath();
+
+      try {
+
+        MediaRecorder recorder = new MediaRecorder();
+
+        this.myAudioRecorder = recorder;
+
+        this.myAudioRecorder.setAudioSource(1);
+
+        this.myAudioRecorder.setOutputFormat(1);
+
+        this.myAudioRecorder.setAudioEncoder(3);
+
+        this.myAudioRecorder.setOutputFile(file.getAbsolutePath());
+
+        this.myAudioRecorder.prepare();
+
+      } catch (Exception error) {
+        error.printStackTrace();
+      }
+      this.myAudioRecorder.start();
+    } catch (Exception error) {
+     error.printStackTrace();
+    }
 
     speech.startListening(intent);
   }
@@ -376,6 +421,11 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     WritableMap event = Arguments.createMap();
     event.putArray("value", arr);
     event.putArray("confidence", confidenceArr);
+    if(this.myAudioFile != null) {
+      Log.d("ASR", "file is not empty and size : "+this.myAudioFile.getTotalSpace()+" location :"+this.myAudioFile.getAbsolutePath());
+    } else {
+      Log.d("ASR", "file is empty");
+    }
 
     sendEvent("onSpeechResults", event);
     Log.d("ASR", "onResults()");

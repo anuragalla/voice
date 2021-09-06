@@ -1,10 +1,12 @@
 package com.wenkesj.voice;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -28,9 +30,11 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import javax.annotation.Nullable;
 
@@ -58,6 +62,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     return Locale.getDefault().toString();
   }
 
+  @SuppressLint("WrongConstant")
   private void startListening(ReadableMap opts) {
     if (speech != null) {
       speech.destroy();
@@ -144,7 +149,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
       File file = new File(paramString1, paramString2.toString());
 
-      this.myAudioFile = file
+      this.myAudioFile = file;
 
       this.AudiofileName = file.getAbsolutePath();
 

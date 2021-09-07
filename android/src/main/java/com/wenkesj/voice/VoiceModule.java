@@ -32,6 +32,7 @@ import com.facebook.react.modules.core.PermissionListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -137,13 +138,15 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
 
     try {
-      int paramInt = new Random().nextInt(100);
+      Date date = new Date();
+      long epochTime = date.getTime();
+//    int paramInt = new Random().nextInt(100);
 
       String paramString1 = this.reactContext.getFilesDir().getAbsolutePath();
 
       StringBuilder paramString2 = new StringBuilder();
 
-      paramString2.append(paramInt);
+      paramString2.append(epochTime);
 
       paramString2.append(".mp3");
 

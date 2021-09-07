@@ -428,9 +428,11 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     event.putArray("confidence", confidenceArr);
     if(this.myAudioFile != null) {
       this.myAudioRecorder.stop();
+      event.putString("audioFilePath", this.myAudioFile.getAbsolutePath());
       Log.d("ASR", "file is not empty and size : "+getFileSizeKiloBytes(this.myAudioFile)+" location :"+this.myAudioFile.getAbsolutePath()+" path :"+this.myAudioFile.getPath());
     } else {
       Log.d("ASR", "file is empty");
+      event.putNull("audioFilePath");
     }
 
     sendEvent("onSpeechResults", event);

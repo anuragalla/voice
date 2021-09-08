@@ -137,8 +137,11 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
     intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
 
+     
     try {
+      
       Date date = new Date();
+
       long epochTime = date.getTime();
 //    int paramInt = new Random().nextInt(100);
 
@@ -156,31 +159,32 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
       this.AudiofileName = file.getAbsolutePath();
 
-      try {
+      MediaRecorder recorder = new MediaRecorder();
 
-        MediaRecorder recorder = new MediaRecorder();
+      this.myAudioRecorder = recorder;
 
-        this.myAudioRecorder = recorder;
+      this.myAudioRecorder.setAudioSource(1);
 
-        this.myAudioRecorder.setAudioSource(1);
+      this.myAudioRecorder.setOutputFormat(1);
 
-        this.myAudioRecorder.setOutputFormat(1);
+      this.myAudioRecorder.setAudioEncoder(3);
 
-        this.myAudioRecorder.setAudioEncoder(3);
+      this.myAudioRecorder.setOutputFile(file.getAbsolutePath());
 
-        this.myAudioRecorder.setOutputFile(file.getAbsolutePath());
+      this.myAudioRecorder.prepare();
 
-        this.myAudioRecorder.prepare();
-
-      } catch (Exception error) {
-        error.printStackTrace();
+    } catch (Exception error) {
+      error.printStackTrace();
+    }
+    speech.startListening(intent);
+    try {
+      if(this.myAudioRecorder != null) {
+        this.myAudioRecorder.start();
       }
-      this.myAudioRecorder.start();
     } catch (Exception error) {
      error.printStackTrace();
     }
 
-    speech.startListening(intent);
   }
 
   private void startSpeechWithPermissions(final String locale, final ReadableMap opts, final Callback callback) {

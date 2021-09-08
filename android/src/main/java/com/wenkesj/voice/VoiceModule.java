@@ -173,19 +173,26 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
       this.myAudioRecorder.prepare();
 
+      Log.d("ASR", "myAudioRecorder prepare()");
+
     } catch (Exception error) {
       error.printStackTrace();
+      Log.d("ASR", "failed myAudioRecorder prepare()");
+
     }
     try {
-      // if(this.myAudioRecorder != null) {
-      //   this.myAudioRecorder.start();
-      // }
+      if(this.myAudioRecorder != null) {
+
+        this.myAudioRecorder.start();
+        Log.d("ASR", "start myAudioRecorder");
+
+      }
     } catch (Exception error) {
      error.printStackTrace();
+      Log.d("ASR", "error myAudioRecorder");
     }
-
     speech.startListening(intent);
-
+    Log.d("ASR", "start startListening");
 
   }
 
@@ -416,6 +423,8 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
   @Override
   public void onResults(Bundle results) {
+    Log.d("ASR", "onResults called");
+
     WritableArray arr = Arguments.createArray();
     WritableArray confidenceArr = Arguments.createArray();
 
@@ -437,6 +446,8 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     event.putArray("confidence", confidenceArr);
     if(this.myAudioRecorder != null) {
       this.myAudioRecorder.stop();
+      Log.d("ASR", "myAudioRecorder stopped");
+
       if(this.myAudioFile != null) {
         event.putString("audioFilePath", this.myAudioFile.getAbsolutePath());
         Log.d("ASR", "file is not empty and size : "+getFileSizeKiloBytes(this.myAudioFile)+" location :"+this.myAudioFile.getAbsolutePath()+" path :"+this.myAudioFile.getPath());

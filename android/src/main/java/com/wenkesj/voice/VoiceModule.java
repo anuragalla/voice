@@ -1,12 +1,10 @@
 package com.wenkesj.voice;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
@@ -30,12 +28,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import javax.annotation.Nullable;
 
@@ -45,10 +40,6 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
   private SpeechRecognizer speech = null;
   private boolean isRecognizing = false;
   private String locale = null;
-  private String AudiofileName = "";
-  private MediaRecorder myAudioRecorder = null;
-  private File myAudioFile = null;
-
 
   public VoiceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -63,7 +54,6 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     return Locale.getDefault().toString();
   }
 
-  @SuppressLint("WrongConstant")
   private void startListening(ReadableMap opts) {
     if (speech != null) {
       speech.destroy();
@@ -133,52 +123,9 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     }
     intent.putExtra("android.speech.extra.GET_AUDIO_FORMAT", "audio/AMR");
     intent.putExtra("android.speech.extra.GET_AUDIO", true);
-    intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 2000);
+    intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 1000);
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
     intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
-
-    try {
-      Date date = new Date();
-      long epochTime = date.getTime();
-//    int paramInt = new Random().nextInt(100);
-
-      String paramString1 = this.reactContext.getFilesDir().getAbsolutePath();
-
-      StringBuilder paramString2 = new StringBuilder();
-
-      paramString2.append(epochTime);
-
-      paramString2.append(".mp3");
-
-      File file = new File(paramString1, paramString2.toString());
-
-      this.myAudioFile = file;
-
-      this.AudiofileName = file.getAbsolutePath();
-
-      try {
-
-        MediaRecorder recorder = new MediaRecorder();
-
-        this.myAudioRecorder = recorder;
-
-        this.myAudioRecorder.setAudioSource(1);
-
-        this.myAudioRecorder.setOutputFormat(1);
-
-        this.myAudioRecorder.setAudioEncoder(3);
-
-        this.myAudioRecorder.setOutputFile(file.getAbsolutePath());
-
-        this.myAudioRecorder.prepare();
-
-      } catch (Exception error) {
-        error.printStackTrace();
-      }
-      this.myAudioRecorder.start();
-    } catch (Exception error) {
-     error.printStackTrace();
-    }
 
     speech.startListening(intent);
   }
@@ -429,21 +376,9 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     WritableMap event = Arguments.createMap();
     event.putArray("value", arr);
     event.putArray("confidence", confidenceArr);
-    if(this.myAudioFile != null) {
-      this.myAudioRecorder.stop();
-      event.putString("audioFilePath", this.myAudioFile.getAbsolutePath());
-      Log.d("ASR", "file is not empty and size : "+getFileSizeKiloBytes(this.myAudioFile)+" location :"+this.myAudioFile.getAbsolutePath()+" path :"+this.myAudioFile.getPath());
-    } else {
-      Log.d("ASR", "file is empty");
-      event.putNull("audioFilePath");
-    }
 
     sendEvent("onSpeechResults", event);
     Log.d("ASR", "onResults()");
-  }
-
-  private static String getFileSizeKiloBytes(File file) {
-    return (double) file.length() / 1024 + "  kb";
   }
 
   @Override

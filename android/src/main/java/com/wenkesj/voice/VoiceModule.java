@@ -176,14 +176,16 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     } catch (Exception error) {
       error.printStackTrace();
     }
-    speech.startListening(intent);
     try {
-      if(this.myAudioRecorder != null) {
-        this.myAudioRecorder.start();
-      }
+      // if(this.myAudioRecorder != null) {
+      //   this.myAudioRecorder.start();
+      // }
     } catch (Exception error) {
      error.printStackTrace();
     }
+
+    speech.startListening(intent);
+
 
   }
 

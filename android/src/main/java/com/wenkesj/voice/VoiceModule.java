@@ -137,7 +137,7 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
     intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
 
-     
+    Boolean isRecoding = true;
     try {
       
       Date date = new Date();
@@ -173,26 +173,20 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
       this.myAudioRecorder.prepare();
 
-      Log.d("ASR", "myAudioRecorder prepare()");
-
     } catch (Exception error) {
+      isRecoding = false;
       error.printStackTrace();
-      Log.d("ASR", "failed myAudioRecorder prepare()");
-
     }
     try {
-      if(this.myAudioRecorder != null) {
-
+      if(isRecoding && this.myAudioRecorder != null) {
         this.myAudioRecorder.start();
-        Log.d("ASR", "start myAudioRecorder");
-
       }
     } catch (Exception error) {
      error.printStackTrace();
-      Log.d("ASR", "error myAudioRecorder");
     }
+
     speech.startListening(intent);
-    Log.d("ASR", "start startListening");
+
 
   }
 
@@ -423,8 +417,6 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
 
   @Override
   public void onResults(Bundle results) {
-    Log.d("ASR", "onResults called");
-
     WritableArray arr = Arguments.createArray();
     WritableArray confidenceArr = Arguments.createArray();
 
@@ -444,14 +436,16 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     WritableMap event = Arguments.createMap();
     event.putArray("value", arr);
     event.putArray("confidence", confidenceArr);
-    if(this.myAudioRecorder != null) {
+    if(this.myAudioFile != null) {
       this.myAudioRecorder.stop();
-      Log.d("ASR", "myAudioRecorder stopped");
-
-      if(this.myAudioFile != null) {
-        event.putString("audioFilePath", this.myAudioFile.getAbsolutePath());
-        Log.d("ASR", "file is not empty and size : "+getFileSizeKiloBytes(this.myAudioFile)+" location :"+this.myAudioFile.getAbsolutePath()+" path :"+this.myAudioFile.getPath());
+      try {
+        this.myAudioRecorder.release();
+        Log.d("ASR", "myAudioRecorder releaseed");
+      } catch(Exception e) {
+        Log.d("ASR", "myAudioRecorder releaseed failed");
       }
+      event.putString("audioFilePath", this.myAudioFile.getAbsolutePath());
+      Log.d("ASR", "file is not empty and size : "+getFileSizeKiloBytes(this.myAudioFile)+" location :"+this.myAudioFile.getAbsolutePath()+" path :"+this.myAudioFile.getPath());
     } else {
       Log.d("ASR", "file is empty");
       event.putNull("audioFilePath");

@@ -177,25 +177,25 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
       isRecoding = false;
       error.printStackTrace();
     }
-    try {
-      if(isRecoding && this.myAudioRecorder != null) {
-        this.myAudioRecorder.start();
-        Log.d("Voice", "------------------Thread sleep start ----------------");
-        Thread.sleep(2000);
-        Log.d("Voice", "------------------Thread sleep end ----------------");
-      }
-    } catch (Exception error) {
-     Log.d("Voice", "------------------failed start recoding ----------------");
-     error.printStackTrace();
-    }
-    Log.d("Voice", "------------------start recoding ----------------");
     try{
       speech.startListening(intent);
+      Log.d("Voice", "------------------Thread sleep start ----------------");
+      Thread.sleep(2000);
+      Log.d("Voice", "------------------Thread sleep end ----------------");
     }catch (Exception error) {
       Log.d("Voice", "------------------failed start listening ----------------");
       error.printStackTrace();
     }
     Log.d("Voice", "------------------start listening ----------------");
+    try {
+      if(isRecoding && this.myAudioRecorder != null) {
+        this.myAudioRecorder.start();
+      }
+    } catch (Exception error) {
+      Log.d("Voice", "------------------failed start recoding ----------------");
+      error.printStackTrace();
+    }
+    Log.d("Voice", "------------------start recoding ----------------");
 
 
 

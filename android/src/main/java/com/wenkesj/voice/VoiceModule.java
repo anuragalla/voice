@@ -179,13 +179,21 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     }
     try {
       if(isRecoding && this.myAudioRecorder != null) {
-        // this.myAudioRecorder.start();
+        this.myAudioRecorder.start();
       }
     } catch (Exception error) {
+     Log.d("Voice", "------------------failed start recoding ----------------");
      error.printStackTrace();
     }
+    Log.d("Voice", "------------------start recoding ----------------");
+    try{
+      speech.startListening(intent);
+    }catch (Exception error) {
+      Log.d("Voice", "------------------failed start listening ----------------");
+      error.printStackTrace();
+    }
+    Log.d("Voice", "------------------start listening ----------------");
 
-    speech.startListening(intent);
 
 
   }
@@ -437,9 +445,9 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     event.putArray("value", arr);
     event.putArray("confidence", confidenceArr);
     if(this.myAudioFile != null) {
-      // this.myAudioRecorder.stop();
+      this.myAudioRecorder.stop();
       try {
-        // this.myAudioRecorder.release();
+        this.myAudioRecorder.release();
         Log.d("ASR", "myAudioRecorder releaseed");
       } catch(Exception e) {
         Log.d("ASR", "myAudioRecorder releaseed failed");

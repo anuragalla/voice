@@ -131,11 +131,15 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
         }
       }
     }
+    intent.putExtra("android.speech.extra.LANGUAGE_MODEL", "en-US");
+    intent.putExtra("android.speech.extra.MAX_RESULTS", 10);
+    intent.putExtra("android.speech.extra.PARTIAL_RESULTS", true);
     intent.putExtra("android.speech.extra.GET_AUDIO_FORMAT", "audio/AMR");
     intent.putExtra("android.speech.extra.GET_AUDIO", true);
-    intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 2000);
+    intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 90000);
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
     intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
+    intent.putExtra("android.speech.extra.PROMPT", "hello");
 
     Boolean isRecoding = true;
     try {
@@ -177,16 +181,6 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
       isRecoding = false;
       error.printStackTrace();
     }
-    try{
-      speech.startListening(intent);
-      Log.d("Voice", "------------------Thread sleep start ----------------");
-      Thread.sleep(2000);
-      Log.d("Voice", "------------------Thread sleep end ----------------");
-    }catch (Exception error) {
-      Log.d("Voice", "------------------failed start listening ----------------");
-      error.printStackTrace();
-    }
-    Log.d("Voice", "------------------start listening ----------------");
     try {
       if(isRecoding && this.myAudioRecorder != null) {
         this.myAudioRecorder.start();
@@ -197,6 +191,14 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     }
     Log.d("Voice", "------------------start recoding ----------------");
 
+    try{
+      speech.startListening(intent);
+    }catch (Exception error) {
+      Log.d("Voice", "------------------failed start listening ----------------");
+      error.printStackTrace();
+    }
+    Log.d("Voice", "------------------start listening ----------------");
+    
 
 
   }

@@ -180,6 +180,9 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
     try {
       if(isRecoding && this.myAudioRecorder != null) {
         this.myAudioRecorder.start();
+        Log.d("Voice", "------------------Thread sleep start ----------------");
+        Thread.sleep(2000);
+        Log.d("Voice", "------------------Thread sleep end ----------------");
       }
     } catch (Exception error) {
      Log.d("Voice", "------------------failed start recoding ----------------");

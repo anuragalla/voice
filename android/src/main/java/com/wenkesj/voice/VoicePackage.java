@@ -16,6 +16,8 @@ public class VoicePackage implements ReactPackage {
   public List<NativeModule> createNativeModules(ReactApplicationContext reactApplicationContext) {
     List<NativeModule> modules = new ArrayList<>();
     modules.add(new VoiceModule(reactApplicationContext));
+    modules.add(new VoiceRecodingModule(reactApplicationContext));
+
     return modules;
   }
 

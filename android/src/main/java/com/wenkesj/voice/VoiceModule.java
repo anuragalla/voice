@@ -123,9 +123,6 @@ public class VoiceModule extends ReactContextBaseJavaModule implements Recogniti
         }
       }
     }
-    this.intent.putExtra("android.speech.extra.GET_AUDIO_FORMAT", "audio/AMR");
-    this.intent.putExtra("android.speech.extra.GET_AUDIO", true);
-    this.intent.putExtra("android.speech.extras.SPEECH_INPUT_MINIMUM_LENGTH_MILLIS", 1000);
     this.intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocale(this.locale));
     this.intent.putExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES, true);
 

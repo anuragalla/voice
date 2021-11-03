@@ -46,7 +46,7 @@
     [self.audioSession setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&audioSessionError];
     
     if (audioSessionError != nil) {
-        [self sendResult:@{@"code": @"audio", @"message": [audioSessionError localizedDescription]} :nil :nil :nil];
+        [self sendResult:@{@"code": @"audio", @"message": [audioSessionError localizedDescription]} :nil :nil :nil :nil];
         return NO;
     }
 
@@ -154,7 +154,7 @@
     self.recognitionRequest.shouldReportPartialResults = YES;
     
     if (self.recognitionRequest == nil) {
-        [self sendResult:@{@"code": @"recognition_init"} :nil :nil :nil];
+        [self sendResult:@{@"code": @"recognition_init"} :nil :nil :nil :nil];
         [self teardown];
         return;
     }
@@ -165,7 +165,7 @@
     
     AVAudioInputNode* inputNode = self.audioEngine.inputNode;
     if (inputNode == nil) {
-        [self sendResult:@{@"code": @"input"} :nil :nil :nil];
+        [self sendResult:@{@"code": @"input"} :nil :nil :nil :nil];
         [self teardown];
         return;
     }
@@ -184,7 +184,7 @@
         }
         if (error != nil) {
             NSString *errorMessage = [NSString stringWithFormat:@"%ld/%@", error.code, [error localizedDescription]];
-            [self sendResult:@{@"code": @"recognition_fail", @"message": errorMessage} :nil :nil :nil];
+            [self sendResult:@{@"code": @"recognition_fail", @"message": errorMessage} :nil :nil :nil :nil];
             [self teardown];
             return;
         }
@@ -198,14 +198,24 @@
         
         BOOL isFinal = result.isFinal;
         
+        NSMutableArray* transcriptionConf = [NSMutableArray new];
         NSMutableArray* transcriptionDics = [NSMutableArray new];
         for (SFTranscription* transcription in result.transcriptions) {
             [transcriptionDics addObject:transcription.formattedString];
+//            for (SFTranscriptionSegment* tSegment in transcription.segments){
+//                [transcriptionConf addObject:@(tSegment.confidence).stringValue];
+//
+//            }
         }
-        
-        [self sendResult :nil :result.bestTranscription.formattedString :transcriptionDics :[NSNumber numberWithBool:isFinal]];
+        for (SFTranscriptionSegment* tSegment in result.bestTranscription.segments){
+            [transcriptionConf addObject:@(tSegment.confidence).stringValue];
+          
+        }
+       
+        [self sendResult :nil :result.bestTranscription.formattedString :transcriptionDics :[NSNumber numberWithBool:isFinal] :transcriptionConf];
         
         if (isFinal || self.recognitionTask.isCancelled || self.recognitionTask.isFinishing) {
+            
             [self sendEventWithName:@"onSpeechEnd" body:nil];
             if (!self.continuous) {
                 [self teardown];
@@ -258,7 +268,7 @@
         }];
     } @catch (NSException *exception) {
         NSLog(@"[Error] - %@ %@", exception.name, exception.reason);
-        [self sendResult:@{@"code": @"start_recording", @"message": [exception reason]} :nil :nil :nil];
+        [self sendResult:@{@"code": @"start_recording", @"message": [exception reason]} :nil :nil :nil :nil];
         [self teardown];
         return;
     } @finally {}
@@ -268,7 +278,7 @@
     NSError* audioSessionError = nil;
     [self.audioEngine startAndReturnError:&audioSessionError];
     if (audioSessionError != nil) {
-        [self sendResult:@{@"code": @"audio", @"message": [audioSessionError localizedDescription]} :nil :nil :nil];
+        [self sendResult:@{@"code": @"audio", @"message": [audioSessionError localizedDescription]} :nil :nil :nil :nil];
         [self teardown];
         return;
     }
@@ -299,12 +309,12 @@
              ];
 }
 
-- (void) sendResult:(NSDictionary*)error :(NSString*)bestTranscription :(NSArray*)transcriptions :(NSNumber*)isFinal {
+- (void) sendResult:(NSDictionary*)error :(NSString*)bestTranscription :(NSArray*)transcriptions :(NSNumber*)isFinal :(NSArray*)confidence {
     if (error != nil) {
         [self sendEventWithName:@"onSpeechError" body:@{@"error": error}];
     }
     if (bestTranscription != nil) {
-        [self sendEventWithName:@"onSpeechResults" body:@{@"value":@[bestTranscription]} ];
+        [self sendEventWithName:@"onSpeechResults" body:@{@"value":@[bestTranscription],@"confidence":confidence} ];
     }
     if (transcriptions != nil) {
         [self sendEventWithName:@"onSpeechPartialResults" body:@{@"value":transcriptions}];
@@ -317,7 +327,7 @@
 // Called when the availability of the given recognizer changes
 - (void)speechRecognizer:(SFSpeechRecognizer *)speechRecognizer availabilityDidChange:(BOOL)available {
     if (available == false) {
-        [self sendResult:RCTMakeError(@"Speech recognition is not available now", nil, nil) :nil :nil :nil];
+        [self sendResult:RCTMakeError(@"Speech recognition is not available now", nil, nil) :nil :nil :nil :nil];
     }
 }
 
@@ -366,20 +376,20 @@ RCT_EXPORT_METHOD(isRecognizing:(RCTResponseSenderBlock)callback) {
 
 RCT_EXPORT_METHOD(startSpeech:(NSString*)localeStr callback:(RCTResponseSenderBlock)callback) {
     if (self.recognitionTask != nil) {
-        [self sendResult:RCTMakeError(@"Speech recognition already started!", nil, nil) :nil :nil :nil];
+        [self sendResult:RCTMakeError(@"Speech recognition already started!", nil, nil) :nil :nil :nil :nil];
         return;
     }
     
     [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
         switch (status) {
             case SFSpeechRecognizerAuthorizationStatusNotDetermined:
-                [self sendResult:RCTMakeError(@"Speech recognition not yet authorized", nil, nil) :nil :nil :nil];
+                [self sendResult:RCTMakeError(@"Speech recognition not yet authorized", nil, nil) :nil :nil :nil :nil];
                 break;
             case SFSpeechRecognizerAuthorizationStatusDenied:
-                [self sendResult:RCTMakeError(@"User denied access to speech recognition", nil, nil) :nil :nil :nil];
+                [self sendResult:RCTMakeError(@"User denied access to speech recognition", nil, nil) :nil :nil :nil :nil];
                 break;
             case SFSpeechRecognizerAuthorizationStatusRestricted:
-                [self sendResult:RCTMakeError(@"Speech recognition restricted on this device", nil, nil) :nil :nil :nil];
+                [self sendResult:RCTMakeError(@"Speech recognition restricted on this device", nil, nil) :nil :nil :nil :nil];
                 break;
             case SFSpeechRecognizerAuthorizationStatusAuthorized:
                 [self setupAndStartRecognizing:localeStr];

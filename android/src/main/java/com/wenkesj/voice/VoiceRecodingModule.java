@@ -92,7 +92,7 @@ public class VoiceRecodingModule extends ReactContextBaseJavaModule implements A
         }
         String str = "en_us";
         int i = 2;
-        String str2 = "speak noow";
+        String str2 = "speak now";
         Boolean bool = true;
         Boolean bool2 = true;
         Boolean bool3 = true;
